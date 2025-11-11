@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Akhil@60  
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    restart: always
+
+  # 🧩 Your .NET Auth-service container
+  auth-service:
+    build: .
+    container_name: auth-service
+    ports:
+      - "5054:5054"
+    depends_on:
+      - sqlserver
+    environment:
+      - ASPNETCORE_URLS=http://+:5054
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=AuthDB;User ID=sa;Password=Akhil@60;TrustServerCertificate=True;
+    restart: always
+
+volumes:
+  sql_data:

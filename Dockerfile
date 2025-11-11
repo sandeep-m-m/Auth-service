@@ -1,19 +1,17 @@
-# Stage 1: Build the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
-
-# Copy csproj and restore dependencies
+WORKDIR /src
 COPY *.csproj ./
 RUN dotnet restore
-
-# Copy everything else and build
 COPY . ./
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o /app/publish
 
-# Stage 2: Run the app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/out .
+COPY --from=build /app/publish .
 
-EXPOSE 8080
+# Make app listen on port 5054 for all network interfaces
+ENV ASPNETCORE_URLS=http://+:5054
+ENV ASPNETCORE_ENVIRONMENT=Production
+EXPOSE 5054
+
 ENTRYPOINT ["dotnet", "Auth-service.dll"]
