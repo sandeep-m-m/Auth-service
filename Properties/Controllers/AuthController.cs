@@ -1,6 +1,7 @@
+using Auth_service.DAOModels;
+using Auth_service.Models;
 using AuthService.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 
 [Route("api/[controller]/[action]")]
@@ -8,24 +9,36 @@ using Microsoft.EntityFrameworkCore;
 public class AuthController : ControllerBase
 {
     /// <summary>
-    /// 
+    /// The database context
     /// </summary>
-    private static DbContext _dbContext;
+    private static AppDbContext _dbContext;
 
-    public AuthController(DbContext dbContext)
+    public AuthController(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }
-    [HttpGet]
-    public IActionResult AddUser()
+
+    #region Public Methods
+    [HttpPost]
+    public async Task<Response> AddUser(CreateUser request)
     {
-        var User = new User()
+        return await addUser(request);
+    }
+    #endregion
+    
+    private async Task<Response> addUser(CreateUser request)
+    {
+        Response response = new();
+        var User = new UserDB()
         {
-            Email = "Admin",
-            Password = "Admin@123"
+            Email = request.Email,
+            Password = request.Password,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow,
+            
         };
-        _dbContext.Add(User);
-        _dbContext.SaveChanges();
-        return Ok();
+        await _dbContext.AddAsync(User);
+        await _dbContext.SaveChangesAsync();
+        return response;
     }
 }

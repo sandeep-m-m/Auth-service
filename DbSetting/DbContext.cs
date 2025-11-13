@@ -1,5 +1,6 @@
 
 
+using Auth_service.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Data
@@ -10,13 +11,6 @@ namespace AuthService.Data
             : base(options)
         {
         }
-        public DbSet<User> Users { get; set; }
-    }
-
-    public class User
-    {
-        public int Id { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
+        public DbSet<UserDB> Users { get; set; }
     }
 }
