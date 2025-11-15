@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Make app listen on port 5054 for all network interfaces
+# Make app listen on port 5054
 ENV ASPNETCORE_URLS=http://+:5054
 ENV ASPNETCORE_ENVIRONMENT=Production
 EXPOSE 5054
