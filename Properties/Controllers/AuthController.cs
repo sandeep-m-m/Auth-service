@@ -1,3 +1,4 @@
+using Auth_service.Constants;
 using Auth_service.DAOModels;
 using Auth_service.Models;
 using AuthService.Data;
@@ -15,9 +16,20 @@ public class AuthController : ControllerBase
     /// </summary>
     private static AppDbContext _dbContext;
 
-    public AuthController(AppDbContext dbContext)
+    /// <summary>
+    /// The JWT service
+    /// </summary>
+    private static JwtService _jwtService;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="dbContext"></param>
+    /// <param name="_jwtService"></param>
+    public AuthController(AppDbContext dbContext, JwtService jwtService)
     {
         _dbContext = dbContext;
+        _jwtService = jwtService;
     }
 
     #region Public Methods
@@ -27,41 +39,53 @@ public class AuthController : ControllerBase
         return await addUser(request);
     }
 
-        
+
     [HttpPost]
-    public async Task<Response> Login(Login request)
+    public async Task<LoginResponse> Login(Login request)
     {
         return await login(request);
     }
     #endregion
-    
+
     private async Task<Response> addUser(CreateUser request)
     {
         Response response = new();
         var User = new UserDB()
         {
             Email = request.Email,
-            Password = Bcrypt.HashPassword(request.Password), 
+            Name = request.Name,
+            Password = Bcrypt.HashPassword(request.Password),
             CreatedDate = DateTime.UtcNow,
             UpdatedDate = DateTime.UtcNow,
-            
+            Role = UserTypes.USER,
+
         };
         await _dbContext.AddAsync(User);
         await _dbContext.SaveChangesAsync();
+        response.IsSuccess = true;
         return response;
     }
 
-    private async Task<Response> login(Login request)
+    private async Task<LoginResponse> login(Login request)
     {
-        Response response = new();
-        var user = await _dbContext.Users.Where(x => x.Email == request.Email).FirstOrDefaultAsync();
-        if(user != null)
+        LoginResponse response = new();
+        var user = await _dbContext.UserAuth.Where(x => x.Email == request.Email).FirstOrDefaultAsync();
+        if (user != null)
         {
             var isMatch = Bcrypt.Verify(request.Password, user.Password);
-            if(isMatch)
+            if (isMatch)
             {
+                response.Token = _jwtService.GenerateToken(user.Id.ToString(), user.Email, user.Role.ToString());
                 response.IsSuccess = true;
             }
+            else
+            {
+                response.ErrorMessage = "Invalid Password";
+            }
+        }
+        else
+        {
+            response.ErrorMessage = "User not found";
         }
 
         return response;

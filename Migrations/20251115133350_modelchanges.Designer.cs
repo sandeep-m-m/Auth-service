@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Auth_service.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251113174409_dbchanges")]
-    partial class dbchanges
+    [Migration("20251115133350_modelchanges")]
+    partial class modelchanges
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,12 +48,15 @@ namespace Auth_service.Migrations
                     b.Property<string>("Password")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Role")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("UserAuth");
                 });
 #pragma warning restore 612, 618
         }

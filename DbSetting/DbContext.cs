@@ -11,6 +11,6 @@ namespace AuthService.Data
             : base(options)
         {
         }
-        public DbSet<UserDB> Users { get; set; }
+        public DbSet<UserDB> UserAuth { get; set; }
     }
 }
